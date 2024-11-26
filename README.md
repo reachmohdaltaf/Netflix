@@ -12,8 +12,14 @@ Currently, two official plugins are available:
 - Login & signup form
 - form validation (usref hook)
 - regex for password validation
-- for bakend google firebase
-- authenticatiob (makes easy)
+- for backend google firebase
+- authentication (makes easy)
+- firebase setup
+- deploying you to firebase
+- create signup user account
+- created out redux store with user slice
+- onauthstatechange utility firbase gives an amazing api 
+- 
 - 
 - routing of app
   - challanges - converting the same signin page to signup

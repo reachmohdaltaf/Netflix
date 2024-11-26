@@ -1,29 +1,73 @@
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { checkValidData } from "../Utils/validate";
 import Header from "./Header";
 import { useRef, useState } from "react";
+import { auth } from "../Utils/firebase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isSignIForm, setIsSignInForm] = useState(true);
-  const [error, setError] = useState(null)
-  const name = useRef(null)
-  const email = useRef(null)
-  const password = useRef(null)
- 
- 
-  const handleButtonClick = ()=>{
-    //validate the form data
-    console.log(email.current.value)
-    console.log(password.current.value)  
-    console.log(name.current?.value)
-    const message = checkValidData(email.current.value, password.current.value, name.current?.value) 
-    setError(message)
+  const [error, setError] = useState(null);
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
+  const navigate = useNavigate()
 
-}
+
+  const handleButtonClick = () => {
+    // Validate the form data
+    console.log(email.current.value);
+    console.log(password.current.value);
+    console.log(name.current?.value);
+
+    const message = checkValidData(
+      email.current.value,
+      password.current.value,
+      name.current?.value
+    );
+    setError(message);
+
+    if (message) return;
+
+    if (!isSignIForm) {
+      // Sign-up logic
+      createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          console.log("hey");
+          navigate("/Browse")
+        })
+        .catch((error) => {
+          console.log("hey2");
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setError(errorCode + " " + errorMessage);
+          
+        });
+    } else {
+      // Sign-in logic
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/Browse")
+
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setError(errorCode + " " + errorMessage);
+        });
+    }
+  };
+
   const toggleSignupForm = () => {
     setIsSignInForm(!isSignIForm);
- };
+  };
 
- 
   return (
     <div>
       <Header />
@@ -35,34 +79,40 @@ const Login = () => {
         />
       </div>
 
-      <form onSubmit={(e)=>e.preventDefault()} className="absolute flex w-full h-fit items-center justify-center bg-black bg-opacity-50  p-4">
-        <div className="  bg-black  bg-opacity-70 h-full mt-20   0 p-4 gap-2 flex justify-center w-[450px] ">
-          <div className="flex flex-col mt-3 w-[75%]  gap-4 text-white">
-            <h1 className="text-white  text-[32px] font-bold py-4">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="absolute flex w-full h-fit items-center justify-center bg-black bg-opacity-50 p-4"
+      >
+        <div className="bg-black bg-opacity-70 h-full mt-20 0 p-4 gap-2 flex justify-center w-[450px]">
+          <div className="flex flex-col mt-3 w-[75%] gap-4 text-white">
+            <h1 className="text-white text-[32px] font-bold py-4">
               {isSignIForm ? "Sign in" : "Sign Up"}
             </h1>
             <input
               ref={email}
               type="email"
               placeholder="Email or mobile Number"
-              className="p-4 focus:placeholder:text-[10px]  focus:placeholder:top-1  focus:after:placeholder:transition  focus:placeholder:absolute focus:placeholder:transition-all duration-250 bg-transparent border-[#B8B8AD] text-[#fff]  border rounded"
+              className="p-4 focus:placeholder:text-[10px] focus:placeholder:top-1 focus:after:placeholder:transition focus:placeholder:absolute focus:placeholder:transition-all duration-250 bg-transparent border-[#B8B8AD] text-[#fff] border rounded"
             />
             {!isSignIForm && (
-                 <input
-                 ref={name}
-                 type=""
-                 placeholder="Full Name"
-                 className="p-4 focus:placeholder:text-[10px]  focus:placeholder:top-1  focus:after:placeholder:transition  focus:placeholder:absolute focus:placeholder:transition-all duration-250 bg-transparent border-[#B8B8AD] text-[#fff]  border rounded"
-               />
+              <input
+                ref={name}
+                type="text"
+                placeholder="Full Name"
+                className="p-4 focus:placeholder:text-[10px] focus:placeholder:top-1 focus:after:placeholder:transition focus:placeholder:absolute focus:placeholder:transition-all duration-250 bg-transparent border-[#B8B8AD] text-[#fff] border rounded"
+              />
             )}
             <input
-            ref={password}
+              ref={password}
               type="password"
               placeholder="Password"
-              className="p-4 focus:placeholder:text-[10px]  focus:placeholder:top-1  focus:after:placeholder:transition  focus:placeholder:absolute focus:placeholder:transition-all duration-250 bg-transparent border-[#B8B8AD] text-[#fff]  border rounded"
+              className="p-4 focus:placeholder:text-[10px] focus:placeholder:top-1 focus:after:placeholder:transition focus:placeholder:absolute focus:placeholder:transition-all duration-250 bg-transparent border-[#B8B8AD] text-[#fff] border rounded"
             />
-            <p className="text-red-500 ">{error}</p>
-            <button onClick={handleButtonClick} className="bg-[#E50914] hover:bg-[#b71921] transition from-black rounded text-white font-medium p-2">
+            <p className="text-red-500">{error}</p>
+            <button
+              onClick={handleButtonClick}
+              className="bg-[#E50914] hover:bg-[#b71921] transition from-black rounded text-white font-medium p-2"
+            >
               {isSignIForm ? "Sign in" : "Sign Up"}
             </button>
             <div className="text-center">
